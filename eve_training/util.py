@@ -2,18 +2,23 @@ from dataclasses import dataclass
 import os
 from typing import List
 import csv
+from datetime import datetime
 
 
 def get_result_checkpoint_config_and_log_path(all_results_folder, name):
-    file_id = 0
-    while True:
-        main_resultfile = all_results_folder + f"/{name}_{file_id}.csv"
-        if os.path.isfile(main_resultfile):
-            file_id += 1
-        else:
-            break
+    today = datetime.today().strftime("%Y-%m-%d")
+    time = datetime.today().strftime("%H%M%S")
 
-    results_folder = os.path.join(all_results_folder, f"{name}_{file_id}")
+    main_resultfile = os.path.join(all_results_folder, f"{today}_{time}_{name}.csv")
+
+    file_id = 0
+    while os.path.isfile(main_resultfile):
+        file_id += 1
+        main_resultfile = os.path.join(
+            all_results_folder, f"{today}_{time}_{name}_{file_id}.csv"
+        )
+
+    results_folder = main_resultfile[:-4]
 
     checkpoint_folder = os.path.join(results_folder, "checkpoints")
 
