@@ -3,15 +3,17 @@ import logging
 import argparse
 import torch.multiprocessing as mp
 import torch
-from eve_training.eve_paper.cerebral.aorta.env1 import TwoDevice
+from eve_training.eve_paper.neurovascular.aorta.two_device.env2 import (
+    TwoDeviceInterimTarget,
+)
 from eve_training.util import get_result_checkpoint_config_and_log_path
-from eve_training.eve_paper.cerebral.aorta.agent1 import create_agent
+from eve_training.eve_paper.neurovascular.aorta.two_device.agent2 import create_agent
 from eve_rl import Runner
-import eve_bench.cerebral.aorta.simple_cath.arch_generator
+import eve_bench.neurovascular.aorta.simple_cath.arch_generator
 
-RESULTS_FOLDER = os.getcwd() + "/results/eve_paper/cerebral/aorta/arch_generator1"
+RESULTS_FOLDER = os.getcwd() + "/results/eve_paper/cerebral/aorta/arch_generator2"
 
-HEATUP_STEPS = 5e5
+HEATUP_STEPS = 3e5
 TRAINING_STEPS = 2e7
 CONSECUTIVE_EXPLORE_EPISODES = 100
 EXPLORE_STEPS_BTW_EVAL = 2.5e5
@@ -28,9 +30,9 @@ EVAL_SEEDS = list(range(200))
 
 GAMMA = 0.99
 REWARD_SCALING = 1
-REPLAY_BUFFER_SIZE = 1e4
+REPLAY_BUFFER_SIZE = 2e6
 CONSECUTIVE_ACTION_STEPS = 1
-BATCH_SIZE = 32
+BATCH_SIZE = 2048
 UPDATE_PER_EXPLORE_STEP = 1 / 20
 
 
@@ -132,14 +134,20 @@ if __name__ == "__main__":
         force=True,
     )
 
-    intervention = eve_bench.cerebral.aorta.simple_cath.arch_generator.ArchGenerator(
-        episodes_between_arch_change=1
+    intervention = (
+        eve_bench.neurovascular.aorta.simple_cath.arch_generator.ArchGenerator()
     )
-    env_train = TwoDevice(intervention=intervention, mode="train", visualisation=False)
-    intervention = eve_bench.cerebral.aorta.simple_cath.arch_generator.ArchGenerator(
-        episodes_between_arch_change=1
+    env_train = TwoDeviceInterimTarget(
+        intervention=intervention, mode="train", visualisation=False
     )
-    env_eval = TwoDevice(intervention=intervention, mode="eval", visualisation=False)
+    intervention = (
+        eve_bench.neurovascular.aorta.simple_cath.arch_generator.ArchGenerator(
+            episodes_between_arch_change=1
+        )
+    )
+    env_eval = TwoDeviceInterimTarget(
+        intervention=intervention, mode="eval", visualisation=False
+    )
     agent = create_agent(
         trainer_device,
         worker_device,
@@ -160,7 +168,8 @@ if __name__ == "__main__":
         stochastic_eval,
         False,
     )
-
+    agent_config = os.path.join(config_folder, "agent.yml")
+    agent.save_config(agent_config)
     env_train_config = os.path.join(config_folder, "env_train.yml")
     env_train.save_config(env_train_config)
     env_eval_config = os.path.join(config_folder, "env_eval.yml")
@@ -176,8 +185,6 @@ if __name__ == "__main__":
         info_results=infos,
         quality_info="success",
     )
-    runner_config = os.path.join(config_folder, "runner.yml")
-    runner.save_config(runner_config)
 
     reward, success = runner.training_run(
         HEATUP_STEPS,

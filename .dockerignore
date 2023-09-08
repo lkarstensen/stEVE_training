@@ -2,7 +2,7 @@ experiments/
 *results*/
 *test
 *.pyc
-
+recorded_interventions/
 *.out
 
 *.egg-info

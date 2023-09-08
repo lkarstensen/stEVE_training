@@ -5,8 +5,10 @@ import csv
 import os.path
 import numpy as np
 import pygame
-from eve_bench.cerebral.aorta.simple_cath import ArchGenerator
-from eve_training.eve_paper.cerebral.aorta.env2 import TwoDeviceInterimTarget
+from eve_bench.neurovascular.aorta.simple_cath import ArchGenerator
+from eve_training.eve_paper.neurovascular.aorta.two_device.env2 import (
+    TwoDeviceInterimTarget,
+)
 import multiprocessing as mp
 
 

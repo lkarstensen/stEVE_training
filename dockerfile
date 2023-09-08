@@ -1,4 +1,4 @@
-FROM nvidia/cuda:11.7.0-runtime-ubuntu20.04
+FROM nvidia/cuda:11.7.1-runtime-ubuntu20.04
 #FROM nvidia/cuda:11.8.0-runtime-ubuntu22.04
 # Install APT tools and repos
 RUN apt-get update && apt-get upgrade -y
@@ -88,32 +88,27 @@ WORKDIR /opt/eve_training
 
 # docker container stop $(docker container ls --filter label=lnk_training --quiet) ; docker pull 10.15.17.136:5555/lnk/eve_training
 
-# docker image rm $(docker image ls --filter reference="registry.gitlab.cc-asp.fraunhofer.de/lnk/eve_registry" --filter "dangling=true" --quiet)
+# docker image rm $(docker image ls --filter reference="registry.gitlab.cc-asp.fraunhofer.de/stacie/ma_projects/lnk_training" --filter "dangling=true" --quiet)
 
 # .73
-# docker run --label=lnk_training --gpus all --mount type=bind,source=$PWD/results,target=/opt/eve_training/results --shm-size 15G -d 10.15.17.136:5555/lnk/eve_training python3 ./eve_training/eve_paper/cerebral/aorta/optuna_heatup.py -d cuda -nw 55 -n archgen
+# docker run --label=lnk_training --gpus all --mount type=bind,source=$PWD/results,target=/opt/eve_training/results --shm-size 15G -d 10.15.17.136:5555/lnk/eve_training python3 ./eve_training/eve_paper/neurovascular/aorta/gw_only/train_vmr_94.py -d cuda -nw 55 -lr 0.00021989352630306626 --hidden 900 900 900 900 -en 500 -el 1 -n arch_vmr_94_lstm
 
 # .197
-# docker run --label=lnk_training --gpus all --mount type=bind,source=$PWD/results,target=/opt/eve_training/results --shm-size 15G -d 10.15.17.136:5555/lnk/eve_training python3 ./eve_training/eve_paper/cerebral/aorta/optuna_heatup.py -d cuda -nw 29 -n archgen
-#./eve_training/eve_paper/cerebral/aorta/train_arch_generator1.py -d cuda -nw 29 -lr 0.00021989352630306626 --hidden 900 900 900 900 -en 500 -el 1 -n archgen
+# docker run --label=lnk_training --gpus all --mount type=bind,source=$PWD/results,target=/opt/eve_training/results --shm-size 15G -d 10.15.17.136:5555/lnk/eve_training python3 ./eve_training/eve_paper/neurovascular/aorta/gw_only/train_vmr_94.py -d cuda -nw 29 -lr 0.00021989352630306626 --hidden 500 900 900 900 900 -en 0 -el 0 -n arch_vmr_94_ff
+# -lr 0.00021989352630306626 --hidden 900 900 900 900 -en 500 -el 1 
 
 # .223
-# docker run --label=lnk_training --gpus all --mount type=bind,source=$PWD/results,target=/opt/lnk_training/results --shm-size 15G -d registry.gitlab.cc-asp.fraunhofer.de/stacie/ma_projects/lnk_training:mac python3 ./lnk_training/ijcars23v2/seed_only.py -d cuda -nw 20 -n seeds_only -lr 0.00021989352630306626 --hidden 900 900 900 900 -en 500 -el 1 -nsv 128
+# docker run --label=lnk_training --gpus all --mount type=bind,source=$PWD/results,target=/opt/eve_training/results --shm-size 15G -d 10.15.17.136:5555/lnk/eve_training python3 ./eve_training/eve_paper/neurovascular/aorta/gw_only/train_vmr_94.py -d cuda -nw 20 -lr 0.00021989352630306626 --hidden 900 900 900 900 -en 500 -el 1 -n arch_vmr_94_lstm
 
 # .238
-# docker run --label=lnk_training --gpus all --mount type=bind,source=$PWD/results,target=/opt/eve_training/results --shm-size 15G -d 10.15.17.136:5555/lnk/eve_training python3 ./eve_training/eve_paper/cerebral/aorta/optuna_heatup.py -d cuda -nw 20 -n archgen
+# docker run --label=lnk_training --gpus all --mount type=bind,source=$PWD/results,target=/opt/eve_training/results --shm-size 15G -d 10.15.17.136:5555/lnk/eve_training python3 ./eve_training/eve_paper/neurovascular/aorta/gw_only/train_vmr_94.py -d cuda -nw 20 -lr 0.00021989352630306626 --hidden 500 900 900 900 900 -en 0 -el 0 -n arch_vmr_94_ff
 
-# .123
-# docker run --label=lnk_training --gpus all --mount type=bind,source=$PWD/results,target=/opt/eve_training/results --shm-size 15G -d 10.15.17.136:5555/lnk/eve_training python3 ./eve_training/eve_paper/cerebral/aorta/optuna_heatup.py -d cuda -nw 20 -n archgen
+# .142
+# docker run --label=lnk_training --gpus all --mount type=bind,source=$PWD/results,target=/opt/eve_training/results --shm-size 15G -d 10.15.17.136:5555/lnk/eve_training python3 ./eve_training/eve_paper/neurovascular/aorta/gw_only/train_1669028594.py -d cuda -nw 20 -lr 0.00021989352630306626 --hidden 500 900 900 900 900 -en 0 -el 0 -n arch_1669028594_ff
 
 #.17.164
-# docker run --label=lnk_training --gpus all --mount type=bind,source=$PWD/results,target=/opt/lnk_training/results --shm-size 15G -d registry.gitlab.cc-asp.fraunhofer.de/stacie/ma_projects/lnk_training:mac python3 ./lnk_training/ijcars23v2/seed_only.py -d cuda -nw 14 -n ff_seeds_only -lr 0.00021989352630306626 --hidden 900 900 900 900 -en 500 -el 1 -ff -nsv 128
+# docker run --label=lnk_training --gpus all --mount type=bind,source=$PWD/results,target=/opt/eve_training/results --shm-size 15G -d 10.15.17.136:5555/lnk/eve_training python3 ./eve_training/eve_paper/neurovascular/aorta/gw_only/optuna_hyperparam.py -d cuda -nw 14 -n archgen_optuna
 
 # pamb-dlp
-# docker run --label=lnk_training --gpus all --rm --mount type=bind,source=$PWD/results,target=/opt/lnk_training/results --shm-size 15G -d 10.15.17.136:5555/lnk/eve_training python3 ./eve_training/eve_paper/cerebral/aorta/optuna_heatup.py -d cuda -nw 65 -n archgen
-# docker run --label=lnk_training --gpus all --rm --mount type=bind,source=$PWD/results,target=/opt/lnk_training/results --shm-size 15G -d registry.gitlab.cc-asp.fraunhofer.de/stacie/ma_projects/lnk_training:mac python3 ./lnk_training/ijcars23v2/seed_only.py -d cuda:1 -nw 35 -n seeds_only -lr 0.00021989352630306626 --hidden 900 900 900 900 -en 500 -el 1 -nsv 32
-
-
-# 2023-06-15_13-29_archgen
-
-# 2023-06-15_132954_archgen
+# docker run --label=lnk_training --gpus all --rm --mount type=bind,source=$PWD/results,target=/opt/lnk_training/results --shm-size 15G -d 10.15.17.136:5555/lnk/eve_training python3 ./eve_training/eve_paper/neurovascular/aorta/gw_only/typeI_optuna_hyerparam.py -d cuda -nw 35 -n typeI_archgen_optuna
+# docker run --label=lnk_training --gpus all --rm --mount type=bind,source=$PWD/results,target=/opt/lnk_training/results --shm-size 15G -d 10.15.17.136:5555/lnk/eve_training python3 ./eve_training/eve_paper/neurovascular/aorta/gw_only/optuna_hyperparam.py -d cuda:1 -nw 35 -n typeI_archgen_optuna

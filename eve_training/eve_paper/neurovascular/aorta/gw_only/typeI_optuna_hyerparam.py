@@ -4,24 +4,26 @@ import logging
 import torch.multiprocessing as mp
 import torch
 import optuna
-from eve_training.eve_paper.cerebral.aorta.env1 import TwoDevice
 from eve_training.util import get_result_checkpoint_config_and_log_path
 from eve_training.optunapruner import CombinationPruner, StagnatingPruner
-from eve_training.eve_paper.cerebral.aorta.agent1 import create_agent
 from eve_rl import Runner
-import eve_bench.cerebral.aorta.simple_cath.arch_generator
+from eve_bench.neurovascular.aorta.guidewire_only.archgentypeI import ArchGenTypeI
+from eve_training.eve_paper.neurovascular.aorta.gw_only.agent1 import create_agent
+from eve_training.eve_paper.neurovascular.aorta.gw_only.env1 import GwOnly
 
-RESULTS_FOLDER = os.getcwd() + "/results/eve_paper/cerebral/aorta/heatup_opti"
+
+RESULTS_FOLDER = (
+    os.getcwd() + "/results/eve_paper/neurovascular/aorta/gw_only/typeI_hyperparam_opti"
+)
+
+EVAL_SEEDS = "1,2,3,5,6,7,8,9,10,12,13,14,16,17,18,21,22,23,27,31,34,35,37,39,42,43,44,47,48,50,52,55,56,58,61,62,63,68,69,70,71,73,79,80,81,84,89,91,92,93,95,97,102,103,108,109,110,115,116,117,118,120,122,123,124,126,127,128,129,130,131,132,134,136,138,139,140,141,142,143,144,147,148,149,150,151,152,154,155,156,158,159,161,162,167,168,171,175"
+EVAL_SEEDS = EVAL_SEEDS.split(",")
+EVAL_SEEDS = [int(seed) for seed in EVAL_SEEDS]
 
 HEATUP_STEPS = 5e5
 TRAINING_STEPS = 1e7
 CONSECUTIVE_EXPLORE_EPISODES = 100
 EXPLORE_STEPS_BTW_EVAL = 5e5
-EVAL_SEEDS = list(range(100))
-LEARNING_RATE = 0.00021989352630306626
-HIDDEN_LAYERS = [900, 900, 900, 900]
-N_EMBEDDER_LAYER = 1
-N_EMBEDDER_NODES = 500
 
 # HEATUP_STEPS = 5e3
 # TRAINING_STEPS = 1e7
@@ -61,24 +63,37 @@ def objective(trial: optuna.trial.Trial):
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         force=True,
     )
+    lr = trial.suggest_float("lr", 8e-5, 2e-3, log=True)
+    n_hidden_layer = trial.suggest_int("n_hidden_layer", 2, 4)
+    hidden_layer_nodes = trial.suggest_int("hidden_layer_nodes", 300, 900, step=100)
+    hidden_layers = [hidden_layer_nodes] * n_hidden_layer
+    embedder_nodes = trial.suggest_int("embedder_nodes", 200, 700, step=100)
+    embedder_layers = trial.suggest_int("embedder_layers", 1, 2)
 
-    intervention = eve_bench.cerebral.aorta.simple_cath.arch_generator.ArchGenerator(
-        episodes_between_arch_change=1
-    )
-    env_train = TwoDevice(intervention=intervention, mode="train", visualisation=False)
-    intervention = eve_bench.cerebral.aorta.simple_cath.arch_generator.ArchGenerator(
-        episodes_between_arch_change=1
-    )
-    env_eval = TwoDevice(intervention=intervention, mode="eval", visualisation=False)
+    custom_parameters = {
+        "learning_rate": lr,
+        "hidden_layers": hidden_layers,
+        "embedder_nodes": embedder_nodes,
+        "embedder_layers": embedder_layers,
+        "HEATUP_STEPS": HEATUP_STEPS,
+        "EXPLORE_STEPS_BTW_EVAL": EXPLORE_STEPS_BTW_EVAL,
+        "CONSECUTIVE_EXPLORE_EPISODES": CONSECUTIVE_EXPLORE_EPISODES,
+        "BATCH_SIZE": BATCH_SIZE,
+        "UPDATE_PER_EXPLORE_STEP": UPDATE_PER_EXPLORE_STEP,
+    }
+    intervention = ArchGenTypeI(episodes_between_arch_change=1)
+    env_train = GwOnly(intervention=intervention, mode="train", visualisation=False)
+    intervention = ArchGenTypeI(episodes_between_arch_change=1)
+    env_eval = GwOnly(intervention=intervention, mode="eval", visualisation=False)
     agent = create_agent(
         trainer_device,
         worker_device,
-        LEARNING_RATE,
+        lr,
         LR_END_FACTOR,
         LR_LINEAR_END_STEPS,
-        HIDDEN_LAYERS,
-        N_EMBEDDER_NODES,
-        N_EMBEDDER_LAYER,
+        hidden_layers,
+        embedder_nodes,
+        embedder_layers,
         GAMMA,
         BATCH_SIZE,
         REWARD_SCALING,
@@ -97,22 +112,10 @@ def objective(trial: optuna.trial.Trial):
     env_eval.save_config(env_eval_config)
     infos = list(env_eval.info.info.keys())
 
-    heatup_0_high = trial.suggest_float("heatup_0_high", 10.0, 25.0)
-    heatup_0_low = trial.suggest_float("heatup_0_range", -20.0, -1.0)
-    heatup_1_diff = trial.suggest_float("heatup_1_diff", -8, 0.0)
-    custom_parameters = {
-        "heatup_0_high": heatup_0_high,
-        "heatup_0_low": heatup_0_low,
-        "heatup_1_diff": heatup_1_diff,
-    }
-
-    heatup_action_low = [[heatup_0_low, -1.0], [heatup_0_low - heatup_1_diff, 3.14]]
-    heatup_action_high = [[heatup_0_high, -1.0], [heatup_0_high - heatup_1_diff, 3.14]]
-
     runner = Runner(
         agent=agent,
-        heatup_action_low=heatup_action_low,
-        heatup_action_high=heatup_action_high,
+        heatup_action_low=[-10.0, -1.0],
+        heatup_action_high=[25, 3.14],
         agent_parameter_for_result_file=custom_parameters,
         checkpoint_folder=checkpoint_folder,
         results_file=results_file,
@@ -141,6 +144,12 @@ def objective(trial: optuna.trial.Trial):
             break
 
     agent.close()
+    del agent
+    del intervention
+    del env_eval
+    del env_train
+    del runner
+    torch.cuda.empty_cache()
     return quality
 
 
@@ -197,7 +206,7 @@ if __name__ == "__main__":
         pruner=pruner,
         sampler=optuna.samplers.RandomSampler(),
     )
-    study.optimize(objective, 10)
+    study.optimize(objective, 20)
     logging.basicConfig(
         filename=RESULTS_FOLDER + "main.log",
         level=DEBUG_LEVEL,
