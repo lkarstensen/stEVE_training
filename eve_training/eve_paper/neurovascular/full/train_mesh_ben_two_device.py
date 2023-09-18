@@ -20,13 +20,6 @@ TRAINING_STEPS = 2e7
 CONSECUTIVE_EXPLORE_EPISODES = 100
 EXPLORE_STEPS_BTW_EVAL = 2.5e5
 
-HEATUP_STEPS = 5e3
-TRAINING_STEPS = 1e7
-CONSECUTIVE_EXPLORE_EPISODES = 10
-EXPLORE_STEPS_BTW_EVAL = 2.5e3
-EVAL_SEEDS = list(range(20))
-RESULTS_FOLDER = os.getcwd() + "/results/test"
-
 
 GAMMA = 0.99
 REWARD_SCALING = 1
@@ -39,7 +32,16 @@ UPDATE_PER_EXPLORE_STEP = 1 / 20
 LR_END_FACTOR = 0.15
 LR_LINEAR_END_STEPS = 6e6
 
-DEBUG_LEVEL = logging.INFO
+DEBUG_LEVEL = logging.DEBUG
+
+# HEATUP_STEPS = 5e3
+# TRAINING_STEPS = 1e7
+# CONSECUTIVE_EXPLORE_EPISODES = 10
+# EXPLORE_STEPS_BTW_EVAL = 7.5e3
+# EVAL_SEEDS = list(range(20))
+# RESULTS_FOLDER = os.getcwd() + "/results/test"
+# BATCH_SIZE = 8
+# UPDATE_PER_EXPLORE_STEP = 1 / 200
 
 
 if __name__ == "__main__":
@@ -47,7 +49,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="perform IJCARS23 training")
     parser.add_argument(
-        "-nw", "--n_worker", type=int, default=3, help="Number of workers"
+        "-nw", "--n_worker", type=int, default=4, help="Number of workers"
     )
     parser.add_argument(
         "-d",
@@ -135,7 +137,7 @@ if __name__ == "__main__":
     )
 
     intervention = Neurovascular2Ins()
-    env_train = GwOnly(intervention=intervention, mode="train", visualisation=True)
+    env_train = GwOnly(intervention=intervention, mode="train", visualisation=False)
     intervention_eval = Neurovascular2Ins()
     env_eval = GwOnly(intervention=intervention_eval, mode="eval", visualisation=False)
     agent = create_agent(
@@ -159,6 +161,10 @@ if __name__ == "__main__":
         False,
     )
 
+    agent.load_checkpoint(
+        "/Users/lennartkarstensen/stacie/eve_training/results/test/2023-09-18_154833_test/checkpoints/checkpoint15000.everl"
+    )
+    print("done")
     env_train_config = os.path.join(config_folder, "env_train.yml")
     env_train.save_config(env_train_config)
     env_eval_config = os.path.join(config_folder, "env_eval.yml")
