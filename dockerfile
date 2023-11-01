@@ -55,7 +55,7 @@ ENV SOFA_ROOT="/opt/sofa/build/install"
 
 RUN python3 -m pip install nvidia-cuda-cupti-cu11==11.7.101
 RUN python3 -m pip install nvidia-cublas-cu11==11.10.3.66
-RUN python3 -m pip install nvidia-cudnn-cu11==8.5.0.96
+RUN python3 -m pip install nvidia_cudnn_cu12==8.9.2.26
 RUN python3 -m pip install nvidia-cufft-cu11==10.9.0.58
 RUN python3 -m pip install nvidia-curand-cu11==10.2.10.91
 RUN python3 -m pip install nvidia-cusolver-cu11==11.4.0.1
@@ -63,7 +63,7 @@ RUN python3 -m pip install nvidia-cusparse-cu11==11.7.4.91
 RUN python3 -m pip install nvidia-nccl-cu11==2.14.3
 
 
-RUN python3 -m pip install torch   
+RUN python3 -m pip install torch==2.1.0
 RUN python3 -m pip install torchvision torchaudio
 RUN python3 -m pip install scipy scikit-image pyvista PyOpenGL pygame matplotlib pillow opencv-python meshio pyyaml optuna gymnasium
 
@@ -74,21 +74,24 @@ RUN apt-get update && \
 
 COPY . /opt/eve_training
 RUN python3 -m pip install /opt/eve_training/eve
-RUN python3 -m pip install /opt/eve_training/eve_bench
+RUN python3 -m pip install -e /opt/eve_training/eve_bench
 RUN python3 -m pip install /opt/eve_training/eve_rl
 RUN python3 -m pip install /opt/eve_training
 
 WORKDIR /opt/eve_training
 
-# docker buildx build --platform=linux/amd64 -t 10.15.17.136:5555/lnk/eve_training -f ./dockerfile .
-# docker push 10.15.17.136:5555/lnk/eve_training
-# docker pull 10.15.17.136:5555/lnk/eve_training
+# docker buildx build --platform=linux/amd64 -t lennartkarstensen/eve-training -f ./dockerfile .
+# docker push lennartkarstensen/eve-training
+# docker pull lennartkarstensen/eve-training
 
-# docker buildx build --platform=linux/amd64 -t 10.15.17.136:5555/lnk/eve_training -f ./dockerfile . && docker push 10.15.17.136:5555/lnk/eve_training
+# docker buildx build --platform=linux/amd64 -t lennartkarstensen/eve-training -f ./dockerfile . && docker push lennartkarstensen/eve-training
 
-# docker container stop $(docker container ls --filter label=lnk_training --quiet) ; docker pull 10.15.17.136:5555/lnk/eve_training
+# docker container stop $(docker container ls --filter label=lnk_training --quiet) ; docker pull lennartkarstensen/eve-training
 
-# docker image rm $(docker image ls --filter reference="registry.gitlab.cc-asp.fraunhofer.de/stacie/ma_projects/lnk_training" --filter "dangling=true" --quiet)
+# docker image rm $(docker image ls --filter reference="lennartkarstensen/eve-training" --filter "dangling=true" --quiet)
+
+# sparc@10.203.25.124
+# docker run --label=lnk_training --gpus all --mount type=bind,source=$PWD/results,target=/opt/eve_training/results --shm-size 15G -d lennartkarstensen/eve-training python3 ./eve_training/eve_paper/neurovascular/full/train_mesh_ben_two_device.py -d cuda -nw 29 -lr 0.00021989352630306626 --hidden 900 900 900 900 -en 500 -el 1 -n full_mt_lstm
 
 # .73
 # docker run --label=lnk_training --gpus all --mount type=bind,source=$PWD/results,target=/opt/eve_training/results --shm-size 15G -d 10.15.17.136:5555/lnk/eve_training python3 ./eve_training/eve_paper/neurovascular/aorta/gw_only/train_vmr_94.py -d cuda -nw 55 -lr 0.00021989352630306626 --hidden 900 900 900 900 -en 500 -el 1 -n arch_vmr_94_lstm
