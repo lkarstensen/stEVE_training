@@ -118,6 +118,7 @@ def create_agent(
             worker_device=device_worker,
             n_worker=n_worker,
             normalize_actions=True,
+            timeout_worker_after_reaching_limit=180,
         )
     else:
         agent = eve_rl.agent.Single(

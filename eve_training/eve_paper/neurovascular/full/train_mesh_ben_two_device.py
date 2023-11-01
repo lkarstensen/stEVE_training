@@ -161,10 +161,6 @@ if __name__ == "__main__":
         False,
     )
 
-    agent.load_checkpoint(
-        "/Users/lennartkarstensen/stacie/eve_training/results/test/2023-09-18_154833_test/checkpoints/checkpoint15000.everl"
-    )
-    print("done")
     env_train_config = os.path.join(config_folder, "env_train.yml")
     env_train.save_config(env_train_config)
     env_eval_config = os.path.join(config_folder, "env_eval.yml")
