@@ -2,50 +2,39 @@ import eve
 import eve.visualisation
 
 
-class TwoDevice(eve.Env):
+class BenchEnv(eve.Env):
     def __init__(
         self,
-        intervention: eve.intervention.Intervention,
+        intervention: eve.intervention.SimulatedIntervention,
         mode: str = "train",
         visualisation: bool = False,
+        n_max_steps=1000,
     ) -> None:
         self.mode = mode
         self.visualisation = visualisation
         start = eve.start.InsertionPoint(intervention)
         pathfinder = eve.pathfinder.BruteForceBFS(intervention=intervention)
-        interim_target = eve.interimtarget.Even(
-            pathfinder, intervention, resolution=30, threshold=15
-        )
         # Observation
 
-        tracking = eve.observation.TrackingDevice2D(
-            intervention, device_idx=0, n_points=3, resolution=2
-        )
+        tracking = eve.observation.Tracking2D(intervention, n_points=3, resolution=2)
         tracking = eve.observation.wrapper.NormalizeTracking2DEpisode(
             tracking, intervention
         )
-        tracking_device2 = eve.observation.TrackingDevice2D(
-            intervention, device_idx=1, n_points=3, resolution=2, name="cath"
+        tracking = eve.observation.wrapper.Memory(
+            tracking, 2, eve.observation.wrapper.MemoryResetMode.FILL
         )
-        tracking_device2 = eve.observation.wrapper.NormalizeTracking2DEpisode(
-            tracking_device2, intervention
-        )
-        target_state = eve.observation.Target2D(
-            intervention, interim_target=interim_target
-        )
+        target_state = eve.observation.Target2D(intervention)
         target_state = eve.observation.wrapper.NormalizeTracking2DEpisode(
             target_state, intervention
         )
-        final_target_state = eve.observation.Target2D(intervention)
-        final_target_state = eve.observation.wrapper.NormalizeTracking2DEpisode(
-            final_target_state, intervention
-        )
+        last_action = eve.observation.LastAction(intervention)
+        last_action = eve.observation.wrapper.Normalize(last_action)
+
         observation = eve.observation.ObsDict(
             {
-                "device1": tracking,
-                "device2": tracking_device2,
+                "tracking": tracking,
                 "target": target_state,
-                "final_target": final_target_state,
+                "last_action": last_action,
             }
         )
 
@@ -55,23 +44,13 @@ class TwoDevice(eve.Env):
             factor=1.0,
             final_only_after_all_interim=False,
         )
+        step_reward = eve.reward.Step(factor=-0.005)
         path_delta = eve.reward.PathLengthDelta(pathfinder, 0.001)
-        device_diff = eve.reward.InsertionLengthRelativeDelta(
-            intervention,
-            device_id=1,
-            relative_to_device_id=0,
-            factor=-0.001,
-            lower_clearance=-50,
-            upper_clearance=-10,
-        )
-        reward = eve.reward.Combination([target_reward, path_delta, device_diff])
+        reward = eve.reward.Combination([target_reward, path_delta, step_reward])
 
         # Terminal and Truncation
         terminal = eve.terminal.TargetReached(intervention)
-        if mode == "train":
-            n_max_steps = 200
-        else:
-            n_max_steps = 450
+
         max_steps = eve.truncation.MaxSteps(n_max_steps)
         vessel_end = eve.truncation.VesselEnd(intervention)
         sim_error = eve.truncation.SimError(intervention)
@@ -93,7 +72,7 @@ class TwoDevice(eve.Env):
 
         if visualisation:
             intervention.make_non_mp()
-            visu = eve.visualisation.SofaPygame(intervention, interim_target)
+            visu = eve.visualisation.SofaPygame(intervention)
         else:
             intervention.make_mp()
             visu = None
@@ -107,5 +86,5 @@ class TwoDevice(eve.Env):
             pathfinder=pathfinder,
             visualisation=visu,
             info=info,
-            interim_target=interim_target,
+            interim_target=None,
         )

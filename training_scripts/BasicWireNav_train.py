@@ -1,16 +1,19 @@
+from copy import deepcopy
 import os
 import logging
 import argparse
 import torch.multiprocessing as mp
 import torch
-from eve_training.eve_paper.neurovascular.full.env1 import GwOnly
-from eve_training.util import get_result_checkpoint_config_and_log_path
-from eve_training.eve_paper.neurovascular.full.agent1 import create_agent
+from util.env import BenchEnv
+from util.util import get_result_checkpoint_config_and_log_path
+from util.agent import BenchAgentSynchron
 from eve_rl import Runner
-from eve_bench.neurovascular.full import Neurovascular2Ins
+from eve_bench import BasicWireNav
 
 
-RESULTS_FOLDER = os.getcwd() + "/results/eve_paper/neurovascular/full/mesh_ben"
+RESULTS_FOLDER = (
+    os.getcwd() + "/results/eve_paper/neurovascular/aorta/gw_only/arch_vmr_94"
+)
 
 EVAL_SEEDS = "1,2,3,5,6,7,8,9,10,12,13,14,16,17,18,21,22,23,27,31,34,35,37,39,42,43,44,47,48,50,52,55,56,58,61,62,63,68,69,70,71,73,79,80,81,84,89,91,92,93,95,97,102,103,108,109,110,115,116,117,118,120,122,123,124,126,127,128,129,130,131,132,134,136,138,139,140,141,142,143,144,147,148,149,150,151,152,154,155,156,158,159,161,162,167,168,171,175"
 EVAL_SEEDS = EVAL_SEEDS.split(",")
@@ -19,6 +22,13 @@ HEATUP_STEPS = 5e5
 TRAINING_STEPS = 2e7
 CONSECUTIVE_EXPLORE_EPISODES = 100
 EXPLORE_STEPS_BTW_EVAL = 2.5e5
+
+# HEATUP_STEPS = 5e3
+# TRAINING_STEPS = 1e7
+# CONSECUTIVE_EXPLORE_EPISODES = 10
+# EXPLORE_STEPS_BTW_EVAL = 2.5e3
+# EVAL_SEEDS = list(range(20))
+# RESULTS_FOLDER = os.getcwd() + "/results/test"
 
 
 GAMMA = 0.99
@@ -32,16 +42,7 @@ UPDATE_PER_EXPLORE_STEP = 1 / 20
 LR_END_FACTOR = 0.15
 LR_LINEAR_END_STEPS = 6e6
 
-DEBUG_LEVEL = logging.DEBUG
-
-# HEATUP_STEPS = 5e3
-# TRAINING_STEPS = 1e7
-# CONSECUTIVE_EXPLORE_EPISODES = 10
-# EXPLORE_STEPS_BTW_EVAL = 7.5e3
-# EVAL_SEEDS = list(range(20))
-# RESULTS_FOLDER = os.getcwd() + "/results/test"
-# BATCH_SIZE = 8
-# UPDATE_PER_EXPLORE_STEP = 1 / 200
+DEBUG_LEVEL = logging.INFO
 
 
 if __name__ == "__main__":
@@ -49,7 +50,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="perform IJCARS23 training")
     parser.add_argument(
-        "-nw", "--n_worker", type=int, default=4, help="Number of workers"
+        "-nw", "--n_worker", type=int, default=2, help="Number of workers"
     )
     parser.add_argument(
         "-d",
@@ -73,21 +74,21 @@ if __name__ == "__main__":
         "-lr",
         "--learning_rate",
         type=float,
-        default=0.00021989352630306626,
+        default=0.0003217978434614328,
         help="Learning Rate of Optimizers",
     )
     parser.add_argument(
         "--hidden",
         nargs="+",
         type=int,
-        default=[900, 900, 900, 900],
+        default=[400, 400, 400],
         help="Hidden Layers",
     )
     parser.add_argument(
         "-en",
         "--embedder_nodes",
         type=int,
-        default=500,
+        default=700,
         help="Number of nodes per layer in embedder",
     )
     parser.add_argument(
@@ -136,11 +137,14 @@ if __name__ == "__main__":
         force=True,
     )
 
-    intervention = Neurovascular2Ins()
-    env_train = GwOnly(intervention=intervention, mode="train", visualisation=False)
-    intervention_eval = Neurovascular2Ins()
-    env_eval = GwOnly(intervention=intervention_eval, mode="eval", visualisation=False)
-    agent = create_agent(
+    intervention = BasicWireNav()
+
+    intervention2 = deepcopy(intervention)
+
+    env_train = BenchEnv(intervention=intervention, mode="train", visualisation=False)
+
+    env_eval = BenchEnv(intervention=intervention2, mode="eval", visualisation=False)
+    agent = BenchAgentSynchron(
         trainer_device,
         worker_device,
         lr,
@@ -168,8 +172,8 @@ if __name__ == "__main__":
     infos = list(env_eval.info.info.keys())
     runner = Runner(
         agent=agent,
-        heatup_action_low=[[-10.0, -1.0], [-11.0, -1.0]],
-        heatup_action_high=[[35, 3.14], [30, 3.14]],
+        heatup_action_low=[-10.0, -1.0],
+        heatup_action_high=[25, 3.14],
         agent_parameter_for_result_file=custom_parameters,
         checkpoint_folder=checkpoint_folder,
         results_file=results_file,
