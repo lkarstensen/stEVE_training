@@ -1,5 +1,6 @@
 FROM nvidia/cuda:11.7.1-runtime-ubuntu20.04
 #FROM nvidia/cuda:11.8.0-runtime-ubuntu22.04
+
 # Install APT tools and repos
 RUN apt-get update && apt-get upgrade -y
 RUN apt-get install -y \
@@ -76,42 +77,6 @@ COPY . /opt/eve_training
 RUN python3 -m pip install /opt/eve_training/eve
 RUN python3 -m pip install -e /opt/eve_training/eve_bench
 RUN python3 -m pip install /opt/eve_training/eve_rl
-RUN python3 -m pip install /opt/eve_training
+# RUN python3 -m pip install /opt/eve_training
 
 WORKDIR /opt/eve_training
-
-# docker buildx build --platform=linux/amd64 -t lennartkarstensen/eve-training -f ./dockerfile .
-# docker push lennartkarstensen/eve-training
-# docker pull lennartkarstensen/eve-training
-
-# docker buildx build --platform=linux/amd64 -t lennartkarstensen/eve-training -f ./dockerfile . && docker push lennartkarstensen/eve-training
-
-# docker container stop $(docker container ls --filter label=lnk_training --quiet) ; docker pull lennartkarstensen/eve-training
-
-# docker image rm $(docker image ls --filter reference="lennartkarstensen/eve-training" --filter "dangling=true" --quiet)
-
-# sparc@10.203.25.124
-# docker run --label=lnk_training --gpus all --mount type=bind,source=$PWD/results,target=/opt/eve_training/results --shm-size 15G -d lennartkarstensen/eve-training python3 ./eve_training/eve_paper/neurovascular/full/train_mesh_ben_two_device.py -d cuda -nw 29 -lr 0.00021989352630306626 --hidden 900 900 900 900 -en 500 -el 1 -n full_mt_lstm
-
-# .73
-# docker run --label=lnk_training --gpus all --mount type=bind,source=$PWD/results,target=/opt/eve_training/results --shm-size 15G -d 10.15.17.136:5555/lnk/eve_training python3 ./eve_training/eve_paper/neurovascular/aorta/gw_only/train_vmr_94.py -d cuda -nw 55 -lr 0.00021989352630306626 --hidden 900 900 900 900 -en 500 -el 1 -n arch_vmr_94_lstm
-
-# .197
-# docker run --label=lnk_training --gpus all --mount type=bind,source=$PWD/results,target=/opt/eve_training/results --shm-size 15G -d 10.15.17.136:5555/lnk/eve_training python3 ./eve_training/eve_paper/neurovascular/aorta/gw_only/train_vmr_94.py -d cuda -nw 29 -lr 0.00021989352630306626 --hidden 500 900 900 900 900 -en 0 -el 0 -n arch_vmr_94_ff
-# -lr 0.00021989352630306626 --hidden 900 900 900 900 -en 500 -el 1 
-
-# .223
-# docker run --label=lnk_training --gpus all --mount type=bind,source=$PWD/results,target=/opt/eve_training/results --shm-size 15G -d 10.15.17.136:5555/lnk/eve_training python3 ./eve_training/eve_paper/neurovascular/aorta/gw_only/train_vmr_94.py -d cuda -nw 20 -lr 0.00021989352630306626 --hidden 900 900 900 900 -en 500 -el 1 -n arch_vmr_94_lstm
-
-# .238
-# docker run --label=lnk_training --gpus all --mount type=bind,source=$PWD/results,target=/opt/eve_training/results --shm-size 15G -d 10.15.17.136:5555/lnk/eve_training python3 ./eve_training/eve_paper/neurovascular/aorta/gw_only/train_vmr_94.py -d cuda -nw 20 -lr 0.00021989352630306626 --hidden 500 900 900 900 900 -en 0 -el 0 -n arch_vmr_94_ff
-
-# .142
-# docker run --label=lnk_training --gpus all --mount type=bind,source=$PWD/results,target=/opt/eve_training/results --shm-size 15G -d 10.15.17.136:5555/lnk/eve_training python3 ./eve_training/eve_paper/neurovascular/aorta/gw_only/train_1669028594.py -d cuda -nw 20 -lr 0.00021989352630306626 --hidden 500 900 900 900 900 -en 0 -el 0 -n arch_1669028594_ff
-
-#.17.164
-# docker run --label=lnk_training --gpus all --mount type=bind,source=$PWD/results,target=/opt/eve_training/results --shm-size 15G -d 10.15.17.136:5555/lnk/eve_training python3 ./eve_training/eve_paper/neurovascular/aorta/gw_only/optuna_hyperparam.py -d cuda -nw 14 -n archgen_optuna
-
-# pamb-dlp
-# docker run --label=lnk_training --gpus all --rm --mount type=bind,source=$PWD/results,target=/opt/lnk_training/results --shm-size 15G -d 10.15.17.136:5555/lnk/eve_training python3 ./eve_training/eve_paper/neurovascular/aorta/gw_only/typeI_optuna_hyerparam.py -d cuda -nw 35 -n typeI_archgen_optuna
-# docker run --label=lnk_training --gpus all --rm --mount type=bind,source=$PWD/results,target=/opt/lnk_training/results --shm-size 15G -d 10.15.17.136:5555/lnk/eve_training python3 ./eve_training/eve_paper/neurovascular/aorta/gw_only/optuna_hyperparam.py -d cuda:1 -nw 35 -n typeI_archgen_optuna
