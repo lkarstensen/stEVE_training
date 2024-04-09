@@ -1,9 +1,9 @@
-[submodule "eve"]
-	path = eve
-	url = git@github.com:lkarstensen/eve.git
 [submodule "eve_rl"]
 	path = eve_rl
 	url = git@github.com:lkarstensen/eve_rl.git
 [submodule "eve_bench"]
 	path = eve_bench
 	url = git@github.com:lkarstensen/eve_bench.git
+[submodule "eve"]
+	path = eve
+	url = git@github.com:lkarstensen/eve.git
