@@ -88,7 +88,7 @@ docker pull <tag>
 ```
 
 4. Run the docker image (first create a *results* folder <path/to/results>):
-````
+```
 docker run --gpus all --mount type=bind,source=<path/to/results>,target=/opt/eve_training/results --shm-size 15G -d <tag> python3 ./training_scripts/BasicWireNav_train.py -d cuda -nw 29 -lr 0.00021989352630306626 --hidden 900 900 900 900 -en 500 -el 1 -n BasicWireNav
 ```
 
