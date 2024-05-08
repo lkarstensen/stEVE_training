@@ -45,7 +45,7 @@ python3 ./training_scripts/BasicWireNav_train.py -d cuda -nw 29 -lr 0.0002198935
 ### ArchVariety
 
 ```
-python3 ./training_scripts/ArchVariety_train.py -d cuda -nw 29 -lr 0.00021989352630306626 --hidden 900 900 900 900 -en 500 -el 1 -n ArchVariety
+python3 ./training_scripts/ArchVariety_train.py -d cuda -nw 29 -lr 0.0003218 --hidden 400 400 400 -en 900 -el 1 -n ArchVariety
 ```
 
 ### DualDeviceNav
