@@ -1,6 +1,6 @@
-# eve_training
+# dEVE_training
 
-Here you can find trainings scripts for autonomous endovascular controllers trained on [eve_bench](https://github.com/lkarstensen/eve_bench) environments using the [eve_rl](https://github.com/lkarstensen/eve_rl) framework. 
+Here you can find trainings scripts for autonomous endovascular controllers trained on [dEVE_bench](https://github.com/lkarstensen/eve_bench) environments using the [dEVE_rl](https://github.com/lkarstensen/eve_rl) framework. 
 
 You can find the scripts in the folder *training_scripts*. Currently it contains the scripts utilized to create the results from **insert paper**. 
 
@@ -10,18 +10,18 @@ You can find the scripts in the folder *training_scripts*. Currently it contains
 ```
 git clone -recurse-submodules https://github.com/lkarstensen/eve_training.git
 ```
-2. Install [SOFA](https://www.sofa-framework.org) (e.g. with the [EVE instructions](https://github.com/lkarstensen/eve?tab=readme-ov-file#install-sofa-with-sofapython3-and-beamadapter)) 
-3. Install and test [eve](https://github.com/lkarstensen/eve)
+2. Install [SOFA](https://www.sofa-framework.org) (e.g. with the [dEVE instructions](https://github.com/lkarstensen/eve?tab=readme-ov-file#install-sofa-with-sofapython3-and-beamadapter)) 
+3. Install and test [dEVE](https://github.com/lkarstensen/eve)
 ```
 python3 -m pip install -e ./eve
 python3 ./eve/examples/function_check.py
 ```
-4. Install and test [eve_bench](https://github.com/lkarstensen/eve_bench)
+4. Install and test [dEVE_bench](https://github.com/lkarstensen/eve_bench)
 ```
 python3 -m pip install -e ./eve_bench
 python3 ./eve_bench/examples/function_check.py
 ```
-5. Install and test [eve_rl](https://github.com/lkarstensen/eve_rl)
+5. Install and test [dEVE_rl](https://github.com/lkarstensen/eve_rl)
 ```
 python3 -m pip install -e ./eve_rl
 python3 ./eve_rl/examples/function_check.py
