@@ -66,6 +66,7 @@ Start this script and wait 1-2 weeks for enough trainings to be performed for go
 
 ## Best practice
 
+### Docker
 A good practice is to run the training in a docker container. This enables easy rollout on several machines, as well as easy pausing and stopping of the container. 
 
 You can find a dockerfile in this repo. It will start from a cuda enabled ubuntu, install SOFA dependencies, pull and configure SOFA, copy this folder and install eve, eve_bench, eve_rl and eve_training. 
