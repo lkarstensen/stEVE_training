@@ -7,7 +7,7 @@ import numpy as np
 class BenchAgentSingle(eve_rl.agent.Single):
     def __init__(
         self,
-        device_trainer,
+        device,
         lr,
         lr_end_factor,
         lr_linear_end_steps,
@@ -18,19 +18,19 @@ class BenchAgentSingle(eve_rl.agent.Single):
         batch_size,
         reward_scaling,
         replay_buffer_size,
-        train_env: eve.Env,
-        eval_env: eve.Env,
+        env_train: eve.Env,
+        env_eval: eve.Env,
         consecutive_action_steps,
         stochastic_eval: bool = False,
         ff_only: bool = False,
     ):
 
-        obs_dict = train_env.observation_space.sample()
+        obs_dict = env_train.observation_space.sample()
         obs_list = [obs.flatten() for obs in obs_dict.values()]
         obs_np = np.concatenate(obs_list)
 
         n_observations = obs_np.shape[0]
-        n_actions = train_env.action_space.sample().flatten().shape[0]
+        n_actions = env_train.action_space.sample().flatten().shape[0]
         if embedder_layers and embedder_nodes and not ff_only:
             q1_embedder = eve_rl.network.component.LSTM(
                 n_layer=embedder_layers, n_nodes=embedder_nodes
@@ -105,16 +105,16 @@ class BenchAgentSingle(eve_rl.agent.Single):
         )
 
         replay_buffer = eve_rl.replaybuffer.VanillaEpisodeShared(
-            replay_buffer_size, batch_size, device_trainer
+            replay_buffer_size, batch_size, device
         )
 
         super().__init__(
             algo,
-            train_env,
-            eval_env,
+            env_train,
+            env_eval,
             replay_buffer,
             consecutive_action_steps=consecutive_action_steps,
-            device=device_trainer,
+            device=device,
             normalize_actions=True,
         )
 
@@ -122,8 +122,8 @@ class BenchAgentSingle(eve_rl.agent.Single):
 class BenchAgentSynchron(eve_rl.agent.Synchron):
     def __init__(
         self,
-        device_trainer,
-        device_worker,
+        trainer_device,
+        worker_device,
         lr,
         lr_end_factor,
         lr_linear_end_steps,
@@ -134,20 +134,20 @@ class BenchAgentSynchron(eve_rl.agent.Synchron):
         batch_size,
         reward_scaling,
         replay_buffer_size,
-        train_env: eve.Env,
-        eval_env: eve.Env,
+        env_train: eve.Env,
+        env_eval: eve.Env,
         consecutive_action_steps,
         n_worker,
         stochastic_eval: bool = False,
         ff_only: bool = False,
     ):
 
-        obs_dict = train_env.observation_space.sample()
+        obs_dict = env_train.observation_space.sample()
         obs_list = [obs.flatten() for obs in obs_dict.values()]
         obs_np = np.concatenate(obs_list)
 
         n_observations = obs_np.shape[0]
-        n_actions = train_env.action_space.sample().flatten().shape[0]
+        n_actions = env_train.action_space.sample().flatten().shape[0]
         if embedder_layers and embedder_nodes and not ff_only:
             q1_embedder = eve_rl.network.component.LSTM(
                 n_layer=embedder_layers, n_nodes=embedder_nodes
@@ -222,17 +222,17 @@ class BenchAgentSynchron(eve_rl.agent.Synchron):
         )
 
         replay_buffer = eve_rl.replaybuffer.VanillaEpisodeShared(
-            replay_buffer_size, batch_size, device_trainer
+            replay_buffer_size, batch_size, trainer_device
         )
 
         super().__init__(
             algo,
-            train_env,
-            eval_env,
+            env_train,
+            env_eval,
             replay_buffer,
             consecutive_action_steps=consecutive_action_steps,
-            trainer_device=device_trainer,
-            worker_device=device_worker,
+            trainer_device=trainer_device,
+            worker_device=worker_device,
             n_worker=n_worker,
             normalize_actions=True,
             timeout_worker_after_reaching_limit=180,
