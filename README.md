@@ -1,6 +1,6 @@
-# dEVE_training
+# stEVE_training
 
-Here you can find trainings scripts for autonomous endovascular controllers trained on [dEVE_bench](https://github.com/lkarstensen/eve_bench) environments using the [dEVE_rl](https://github.com/lkarstensen/eve_rl) framework. 
+Here you can find trainings scripts for autonomous endovascular controllers trained on [stEVE_bench](https://github.com/lkarstensen/stEVE_bench) environments using the [stEVE_rl](https://github.com/lkarstensen/stEVE_rl) framework. 
 
 You can find the scripts in the folder *training_scripts*. Currently it contains the scripts utilized to create the results from **insert paper**. 
 
@@ -8,20 +8,20 @@ You can find the scripts in the folder *training_scripts*. Currently it contains
 
 1. Clone the repo including the submodules:
 ```
-git clone -recurse-submodules https://github.com/lkarstensen/eve_training.git
+git clone -recurse-submodules https://github.com/lkarstensen/stEVE_training.git
 ```
-2. Install [SOFA](https://www.sofa-framework.org) (e.g. with the [dEVE instructions](https://github.com/lkarstensen/eve?tab=readme-ov-file#install-sofa-with-sofapython3-and-beamadapter)) 
-3. Install and test [dEVE](https://github.com/lkarstensen/eve)
+2. Install [SOFA](https://www.sofa-framework.org) (e.g. with the [stEVE instructions](https://github.com/lkarstensen/stEVE?tab=readme-ov-file#install-sofa-with-sofapython3-and-beamadapter)) 
+3. Install and test [stEVE](https://github.com/lkarstensen/stEVE)
 ```
 python3 -m pip install -e ./eve
 python3 ./eve/examples/function_check.py
 ```
-4. Install and test [dEVE_bench](https://github.com/lkarstensen/eve_bench)
+4. Install and test [stEVE_bench](https://github.com/lkarstensen/stEVE_bench)
 ```
 python3 -m pip install -e ./eve_bench
 python3 ./eve_bench/examples/function_check.py
 ```
-5. Install and test [dEVE_rl](https://github.com/lkarstensen/eve_rl)
+5. Install and test [stEVE_rl](https://github.com/lkarstensen/stEVE_rl)
 ```
 python3 -m pip install -e ./eve_rl
 python3 ./eve_rl/examples/function_check.py
