@@ -9,6 +9,7 @@ class BenchEnv(eve.Env):
         mode: str = "train",
         visualisation: bool = False,
         n_max_steps=1000,
+        reward_type: int = 0
     ) -> None:
         self.mode = mode
         self.visualisation = visualisation
@@ -46,7 +47,26 @@ class BenchEnv(eve.Env):
         )
         step_reward = eve.reward.Step(factor=-0.005)
         path_delta = eve.reward.PathLengthDelta(pathfinder, 0.001)
-        reward = eve.reward.Combination([target_reward, path_delta, step_reward])
+
+        rewards: list[eve.reward.Reward] = []
+        if reward_type == 0:
+            rewards = [target_reward, path_delta, step_reward]
+        elif reward_type == 1:
+            rewards = [target_reward, step_reward]
+        elif reward_type == 2:
+            rewards = [target_reward, path_delta]
+        elif reward_type == 3:
+            rewards = [path_delta, step_reward]
+        elif reward_type == 4:
+            rewards = [target_reward]
+        elif reward_type == 5:
+            rewards = [path_delta]
+        elif reward_type == 6:
+            rewards = [step_reward]
+        else:
+            raise ValueError("Invalid reward type specified.")
+
+        reward = eve.reward.Combination(rewards)
 
         # Terminal and Truncation
         terminal = eve.terminal.TargetReached(intervention)

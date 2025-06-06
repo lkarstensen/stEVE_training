@@ -12,16 +12,17 @@ from eve_bench import BasicWireNav
 
 
 RESULTS_FOLDER = (
-    os.getcwd() + "/results/eve_paper/neurovascular/aorta/gw_only/arch_vmr_94"
+    os.getcwd() + "/results/eve_paper/basicwirenav"
 )
 
-EVAL_SEEDS = "1,2,3,5,6,7,8,9,10,12,13,14,16,17,18,21,22,23,27,31,34,35,37,39,42,43,44,47,48,50,52,55,56,58,61,62,63,68,69,70,71,73,79,80,81,84,89,91,92,93,95,97,102,103,108,109,110,115,116,117,118,120,122,123,124,126,127,128,129,130,131,132,134,136,138,139,140,141,142,143,144,147,148,149,150,151,152,154,155,156,158,159,161,162,167,168,171,175"
-EVAL_SEEDS = EVAL_SEEDS.split(",")
-EVAL_SEEDS = [int(seed) for seed in EVAL_SEEDS]
-HEATUP_STEPS = 5e5
-TRAINING_STEPS = 2e7
+# EVAL_SEEDS = "1,2,3,5,6,7,8,9,10,12,13,14,16,17,18,21,22,23,27,31,34,35,37,39,42,43,44,47,48,50,52,55,56,58,61,62,63,68,69,70,71,73,79,80,81,84,89,91,92,93,95,97,102,103,108,109,110,115,116,117,118,120,122,123,124,126,127,128,129,130,131,132,134,136,138,139,140,141,142,143,144,147,148,149,150,151,152,154,155,156,158,159,161,162,167,168,171,175"
+# EVAL_SEEDS = EVAL_SEEDS.split(",")
+# EVAL_SEEDS = [int(seed) for seed in EVAL_SEEDS]
+EVAL_SEEDS = a = [i for i in range(0,100)]
+HEATUP_STEPS = int(5e5)
+TRAINING_STEPS = int(1e7)
 CONSECUTIVE_EXPLORE_EPISODES = 100
-EXPLORE_STEPS_BTW_EVAL = 2.5e5
+EXPLORE_STEPS_BTW_EVAL = int(2.5e5)
 
 # HEATUP_STEPS = 5e3
 # TRAINING_STEPS = 1e7
@@ -42,7 +43,7 @@ UPDATE_PER_EXPLORE_STEP = 1 / 20
 LR_END_FACTOR = 0.15
 LR_LINEAR_END_STEPS = 6e6
 
-DEBUG_LEVEL = logging.INFO
+DEBUG_LEVEL = logging.DEBUG
 
 
 if __name__ == "__main__":
@@ -98,6 +99,13 @@ if __name__ == "__main__":
         default=1,
         help="Number of layers in embedder",
     )
+    parser.add_argument(
+        "-r",
+        "--reward",
+        type=int,
+        default=0,
+        help="Reward type to use. (0-6)"
+    )
     args = parser.parse_args()
 
     trainer_device = torch.device(args.device)
@@ -108,6 +116,11 @@ if __name__ == "__main__":
     hidden_layers = args.hidden
     embedder_nodes = args.embedder_nodes
     embedder_layers = args.embedder_layers
+    if args.reward not in [0, 1, 2, 3, 4, 5, 6]:
+        raise ValueError(
+            "Reward type must be one of the following: 0, 1, 2, 3, 4, 5, 6"
+        )
+    reward = args.reward
     worker_device = torch.device("cpu")
 
     custom_parameters = {
@@ -141,9 +154,9 @@ if __name__ == "__main__":
 
     intervention2 = deepcopy(intervention)
 
-    env_train = BenchEnv(intervention=intervention, mode="train", visualisation=False)
+    env_train = BenchEnv(intervention=intervention, mode="train", visualisation=False, reward_type=reward)
+    env_eval = BenchEnv(intervention=intervention2, mode="eval", visualisation=False, reward_type=reward)
 
-    env_eval = BenchEnv(intervention=intervention2, mode="eval", visualisation=False)
     agent = BenchAgentSynchron(
         trainer_device,
         worker_device,
