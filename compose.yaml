@@ -1,0 +1,42 @@
+name: stEVE Training
+services:
+    eve-training1:
+        deploy:
+            resources:
+                reservations:
+                    devices:
+                        - driver: nvidia
+                          count: all
+                          capabilities:
+                              - gpu
+        volumes:
+            - type: bind
+              source: $PWD/results
+              target: /opt/eve_training/results
+        shm_size: 15G
+        image: lennartkarstensen/eve-training
+        command: python3 ./training_scripts/BasicWireNav_train.py -d cuda -nw 23 -lr
+            0.00021989352630306626 --hidden 900 900 900 900 -en 500 -el 1 -r 1 -n
+            BasicWireNav_no_path
+
+    eve-training2:
+        deploy:
+            resources:
+                reservations:
+                    devices:
+                        - driver: nvidia
+                          count: all
+                          capabilities:
+                              - gpu
+        volumes:
+            - type: bind
+              source: $PWD/results
+              target: /opt/eve_training/results
+        shm_size: 15G
+        image: lennartkarstensen/eve-training
+        command: python3 ./training_scripts/BasicWireNav_train.py -d cuda -nw 22 -lr
+            0.00021989352630306626 --hidden 900 900 900 900 -en 500 -el 1 -r 2 -n
+            BasicWireNav_no_step
+        depends_on:
+            eve-training1:
+                condition: service_completed_successfully

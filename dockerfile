@@ -80,3 +80,15 @@ RUN python3 -m pip install /opt/eve_training/eve_rl
 # RUN python3 -m pip install /opt/eve_training
 
 WORKDIR /opt/eve_training
+
+# docker buildx build --platform=linux/amd64 -t lennartkarstensen/eve-training -f ./dockerfile .
+# docker push lennartkarstensen/eve-training
+# docker pull lennartkarstensen/eve-training
+
+# docker buildx build --platform=linux/amd64 -t lennartkarstensen/eve-training -f ./dockerfile . && docker push lennartkarstensen/eve-training
+
+# docker container stop $(docker container ls --filter label=lnk_training --quiet) ; docker pull lennartkarstensen/eve-training
+
+# docker image rm $(docker image ls --filter reference="lennartkarstensen/eve-training" --filter "dangling=true" --quiet)
+
+# docker run --gpus all --mount type=bind,source=$PWD/results,target=/opt/eve_training/results --shm-size 15G -d lennartkarstensen/eve-training  python3 ./training_scripts/BasicWireNav_train.py -d cuda -nw 23 -lr 0.00021989352630306626 --hidden 900 900 900 900 -en 500 -el 1 -r 1 -n BasicWireNav_no_x
