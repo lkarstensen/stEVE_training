@@ -86,10 +86,15 @@ if __name__ == "__main__":
         }
         intervention = ArchVariety(episodes_between_arch_change=1)
         env_train = BenchEnv(
-            intervention=intervention, mode="train", visualisation=False
+            intervention=intervention,
+            mode="train",
+            visualisation=False,
+            n_max_steps=150,
         )
         intervention = ArchVariety(episodes_between_arch_change=1)
-        env_eval = BenchEnv(intervention=intervention, mode="eval", visualisation=False)
+        env_eval = BenchEnv(
+            intervention=intervention, mode="eval", visualisation=False, n_max_steps=450
+        )
         agent = BenchAgentSynchron(
             trainer_device,
             worker_device,

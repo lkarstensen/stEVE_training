@@ -137,10 +137,15 @@ if __name__ == "__main__":
     )
 
     intervention = DualDeviceNav()
-    env_train = BenchEnv(intervention=intervention, mode="train", visualisation=False)
+    env_train = BenchEnv(
+        intervention=intervention, mode="train", visualisation=False, n_max_steps=500
+    )
     intervention_eval = DualDeviceNav()
     env_eval = BenchEnv(
-        intervention=intervention_eval, mode="eval", visualisation=False
+        intervention=intervention_eval,
+        mode="eval",
+        visualisation=False,
+        n_max_steps=1000,
     )
     agent = BenchAgentSynchron(
         trainer_device,

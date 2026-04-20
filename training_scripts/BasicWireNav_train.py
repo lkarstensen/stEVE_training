@@ -141,9 +141,13 @@ if __name__ == "__main__":
 
     intervention2 = deepcopy(intervention)
 
-    env_train = BenchEnv(intervention=intervention, mode="train", visualisation=False)
+    env_train = BenchEnv(
+        intervention=intervention, mode="train", visualisation=False, n_max_steps=150
+    )
 
-    env_eval = BenchEnv(intervention=intervention2, mode="eval", visualisation=False)
+    env_eval = BenchEnv(
+        intervention=intervention2, mode="eval", visualisation=False, n_max_steps=450
+    )
     agent = BenchAgentSynchron(
         trainer_device,
         worker_device,
